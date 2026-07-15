@@ -78,7 +78,7 @@ function Main() {
     calledFromUpperInput ? setLastQuery(lastQuery) : setLastQuery(query);
 
     const apiKey = import.meta.env.VITE_API_KEY; // key from AI Studio only
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent`;
 
     console.log("URL : ", url);
 
@@ -86,7 +86,7 @@ function Main() {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "X-goog-api-key": apiKey,
+        "x-goog-api-key": apiKey, // only here
       },
       body: JSON.stringify({
         contents: [
