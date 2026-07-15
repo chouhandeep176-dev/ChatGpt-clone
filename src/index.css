@@ -1,0 +1,113 @@
+@import "tailwindcss";
+
+#bottom-query-textarea::-webkit-scrollbar {
+  display: none;
+}
+
+*{
+  box-sizing: border-box;
+}
+
+/* custom-scroll.css */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: #5c5c5c;
+  border-radius: 8px;
+}
+
+body, html {
+  background-color: #212121; /* or your app's background */
+  margin: 0;
+}
+
+#markdown {
+  padding: 0rem 1rem;
+  color: white;
+  text-align: start;
+  align-self:flex-start;
+}
+
+#markdown p{
+  margin-top: 1rem;
+}
+
+#markdown li {
+  margin-top: 1rem;
+}
+
+#markdown strong {
+  margin-top: 1rem;
+  letter-spacing: 1px;
+  font-size: 1.2rem;
+
+}
+
+#markdown {
+  line-height: 1.6;
+  font-size: 16px;
+  /* padding: 1rem; */
+}
+#markdown h1, #markdown h2 {
+  margin-top: 1rem;
+}
+
+/* // animation --> */
+
+@keyframes pulseWidth {
+  0%, 100% {
+    opacity: 0.7;
+    background-color: #6b7280; /* gray-500 */
+    transform: scaleX(0.98);
+  }
+  50% {
+    opacity: 1;
+    background-color: #9ca3af; /* gray-400 */
+    transform: scaleX(1);
+  }
+}
+
+.pulse-loader {
+  animation: pulseWidth 1.5s ease-in-out infinite;
+  transform-origin: left;
+}
+
+/* // typing animation --> */
+#markdown {
+  opacity: 0;
+  transform: translateY(15px);
+  animation: slideIn 0.4s ease forwards;
+}
+
+@keyframes slideIn {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+#markdown.animate {
+  animation: slideIn 0.6s ease forwards;
+}
+
+.icon-style {
+  @apply hover:bg-[#3f3f3f] p-1 rounded-[7px];
+}
+
+.shadow-element {
+  box-shadow: 13px 10px 18px -6px rgba(0, 0, 0, 0.46);
+}
+
+.popup-style{
+  @apply bg-black text-white text-[.8rem] px-2 p-1 mt-2 rounded-md shadow-lg;
+}
