@@ -32,7 +32,7 @@ function Main() {
 
   // chat started flag -->
   const [chatStarted, setChatStarted] = useState(
-    location.state?.chat ? true : false
+    location.state?.chat ? true : false,
   );
 
   const [loading, setLoading] = useState(false);
@@ -77,34 +77,38 @@ function Main() {
     // update last query on the basis of from where api call is made -->
     calledFromUpperInput ? setLastQuery(lastQuery) : setLastQuery(query);
 
-    const apiKey = import.meta.env.VITE_API_KEY; // key from AI Studio only
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent`;
+    const apiKey = import.meta.env.VITE_API_KEY; // ref: https://console.groq.com/docs/api-reference#chat-create
+    const url = "https://api.groq.com/openai/v1/chat/completions";
 
-    console.log("URL : ", url);
+    console.log("URL:", url);
 
-    const res = await fetch(url, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "x-goog-api-key": apiKey, // only here
-      },
-      body: JSON.stringify({
-        contents: [
-          {
-            parts: [
-              {
-                text: calledFromUpperInput ? lastQuery : query,
-              },
-            ],
-          },
-        ],
-      }),
-    });
+    try {
+      const res = await fetch(url, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${apiKey}`, // Key here
+        },
+        body: JSON.stringify({
+          model: "llama-3.3-70b-versatile", // model required
+          messages: [
+            {
+              role: "user",
+              content: calledFromUpperInput ? lastQuery : query, // user question
+            },
+          ],
+        }),
+      });
 
-    let data = await res.json();
-    let finalResponse = data.candidates[0].content.parts[0].text;
+      const data = await res.json();
+      const finalResponse =
+        data?.choices?.[0]?.message?.content || "No response try again";
 
-    setResponse(finalResponse);
+      setResponse(finalResponse);
+    } catch (err) {
+      console.error(err);
+      setResponse("⚠️ API error, try again later");
+    }
 
     // loading has ended -->
     setLoading(false);
@@ -119,7 +123,7 @@ function Main() {
 
     // store chat data in the local storage -->
     const newChat = {
-      query: calledFromUpperInput? lastQuery :query,
+      query: calledFromUpperInput ? lastQuery : query,
       response: finalResponse,
       date: date,
       _id: crypto.randomUUID(),
@@ -202,13 +206,14 @@ function Main() {
                     width="28px"
                     fill="#e3e3e3"
                   >
-                    {!copyDone ? (
-                      // copy icon -->
-                      <path d="M360-240q-33 0-56.5-23.5T280-320v-480q0-33 23.5-56.5T360-880h360q33 0 56.5 23.5T800-800v480q0 33-23.5 56.5T720-240H360Zm0-80h360v-480H360v480ZM200-80q-33 0-56.5-23.5T120-160v-560h80v560h440v80H200Zm160-240v-480 480Z" />
-                    ) : (
-                      // tick icon -->
-                      <path d="M382-240 154-468l57-57 171 171 367-367 57 57-424 424Z" />
-                    )}
+                    {
+                      !copyDone ?
+                        // copy icon -->
+                        <path d="M360-240q-33 0-56.5-23.5T280-320v-480q0-33 23.5-56.5T360-880h360q33 0 56.5 23.5T800-800v480q0 33-23.5 56.5T720-240H360Zm0-80h360v-480H360v480ZM200-80q-33 0-56.5-23.5T120-160v-560h80v560h440v80H200Zm160-240v-480 480Z" />
+                        // tick icon -->
+                      : <path d="M382-240 154-468l57-57 171 171 367-367 57 57-424 424Z" />
+
+                    }
                   </svg>
                 </Tooltip.Trigger>
 
@@ -226,103 +231,104 @@ function Main() {
 
               {/* // show edit and send button conditionally -->  */}
 
-              {isEditable ? (
-                // show send button -->
-                <Tooltip.Root>
-                  <Tooltip.Trigger asChild>
-                    <svg
-                      onClick={(e) => {
-                        getGeminiResponse(true);
-                        changeSearchIcon();
+              {
+                isEditable ?
+                  // show send button -->
+                  <Tooltip.Root>
+                    <Tooltip.Trigger asChild>
+                      <svg
+                        onClick={(e) => {
+                          getGeminiResponse(true);
+                          changeSearchIcon();
 
-                        // textarea no longer editable after submission of query -->
-                        setIsEditable(false);
+                          // textarea no longer editable after submission of query -->
+                          setIsEditable(false);
 
-                        // Force resize in editable state -->
-                        const textarea = document.getElementById(
-                          "user-query-upper-input"
-                        );
+                          // Force resize in editable state -->
+                          const textarea = document.getElementById(
+                            "user-query-upper-input",
+                          );
 
-                        const markdown = document.getElementById("markdown");
+                          const markdown = document.getElementById("markdown");
 
-                        if (textarea) {
-                          textarea.style.height = "auto";
-                          textarea.style.minHeight = "3.2rem";
-                          markdown.style.height = "65%";
-                        }
-                      }}
-                      className="hover:bg-[#3f3f3f] p-1 rounded-[7px]"
-                      xmlns="http://www.w3.org/2000/svg"
-                      height="28px"
-                      viewBox="0 -960 960 960"
-                      width="28px"
-                      fill="#e3e3e3"
-                    >
-                      <path d="M120-160v-640l760 320-760 320Zm80-120 474-200-474-200v140l240 60-240 60v140Zm0 0v-400 400Z" />
-                    </svg>
-                  </Tooltip.Trigger>
+                          if (textarea) {
+                            textarea.style.height = "auto";
+                            textarea.style.minHeight = "3.2rem";
+                            markdown.style.height = "65%";
+                          }
+                        }}
+                        className="hover:bg-[#3f3f3f] p-1 rounded-[7px]"
+                        xmlns="http://www.w3.org/2000/svg"
+                        height="28px"
+                        viewBox="0 -960 960 960"
+                        width="28px"
+                        fill="#e3e3e3"
+                      >
+                        <path d="M120-160v-640l760 320-760 320Zm80-120 474-200-474-200v140l240 60-240 60v140Zm0 0v-400 400Z" />
+                      </svg>
+                    </Tooltip.Trigger>
 
-                  {/* The tooltip itself */}
-                  <Tooltip.Portal>
-                    <Tooltip.Content
-                      side="bottom"
-                      align="center"
-                      className="popup-style"
-                    >
-                      Send
-                    </Tooltip.Content>
-                  </Tooltip.Portal>
-                </Tooltip.Root>
-              ) : (
-                // edit button -->
-                <Tooltip.Root>
-                  <Tooltip.Trigger asChild>
-                    <svg
-                      onClick={(e) => {
-                        setIsEditable(true);
+                    {/* The tooltip itself */}
+                    <Tooltip.Portal>
+                      <Tooltip.Content
+                        side="bottom"
+                        align="center"
+                        className="popup-style"
+                      >
+                        Send
+                      </Tooltip.Content>
+                    </Tooltip.Portal>
+                  </Tooltip.Root>
+                  // edit button -->
+                : <Tooltip.Root>
+                    <Tooltip.Trigger asChild>
+                      <svg
+                        onClick={(e) => {
+                          setIsEditable(true);
 
-                        // Force resize in editable state -->
-                        const textarea = document.getElementById(
-                          "user-query-upper-input"
-                        );
+                          // Force resize in editable state -->
+                          const textarea = document.getElementById(
+                            "user-query-upper-input",
+                          );
 
-                        const markdown = document.getElementById("markdown");
+                          const markdown = document.getElementById("markdown");
 
-                        if (textarea) {
-                          textarea.style.height = "auto";
-                          textarea.style.minHeight = "8rem";
-                          markdown.style.height = "50%";
-                        }
-                      }}
-                      className="hover:bg-[#3f3f3f] p-1 rounded-[7px]"
-                      xmlns="http://www.w3.org/2000/svg"
-                      height="28px"
-                      viewBox="0 -960 960 960"
-                      width="28px"
-                      fill="#e3e3e3"
-                    >
-                      <path d="M200-200h57l391-391-57-57-391 391v57Zm-80 80v-170l528-527q12-11 26.5-17t30.5-6q16 0 31 6t26 18l55 56q12 11 17.5 26t5.5 30q0 16-5.5 30.5T817-647L290-120H120Zm640-584-56-56 56 56Zm-141 85-28-29 57 57-29-28Z" />
-                    </svg>
-                  </Tooltip.Trigger>
+                          if (textarea) {
+                            textarea.style.height = "auto";
+                            textarea.style.minHeight = "8rem";
+                            markdown.style.height = "50%";
+                          }
+                        }}
+                        className="hover:bg-[#3f3f3f] p-1 rounded-[7px]"
+                        xmlns="http://www.w3.org/2000/svg"
+                        height="28px"
+                        viewBox="0 -960 960 960"
+                        width="28px"
+                        fill="#e3e3e3"
+                      >
+                        <path d="M200-200h57l391-391-57-57-391 391v57Zm-80 80v-170l528-527q12-11 26.5-17t30.5-6q16 0 31 6t26 18l55 56q12 11 17.5 26t5.5 30q0 16-5.5 30.5T817-647L290-120H120Zm640-584-56-56 56 56Zm-141 85-28-29 57 57-29-28Z" />
+                      </svg>
+                    </Tooltip.Trigger>
 
-                  {/* The tooltip itself */}
-                  <Tooltip.Portal>
-                    <Tooltip.Content
-                      side="bottom"
-                      align="center"
-                      className="popup-style"
-                    >
-                      Edit Message
-                    </Tooltip.Content>
-                  </Tooltip.Portal>
-                </Tooltip.Root>
-              )}
+                    {/* The tooltip itself */}
+                    <Tooltip.Portal>
+                      <Tooltip.Content
+                        side="bottom"
+                        align="center"
+                        className="popup-style"
+                      >
+                        Edit Message
+                      </Tooltip.Content>
+                    </Tooltip.Portal>
+                  </Tooltip.Root>
+
+              }
             </div>
           </div>
         )}
 
         {/* Render preloader or response while loading --> */}
-        {loading ? (
+        {loading ?
           <div
             id="preloader"
             className="w-full mt-8 h-[62%] py-4 flex flex-col justify-end items-start"
@@ -334,8 +340,7 @@ function Main() {
             <div className="w-full h-[15%] mb-2 bg-gray-500 rounded-xl pulse-loader"></div>
             <div className="w-[80%] h-[15%] mb-2 bg-gray-500 rounded-xl pulse-loader"></div>
           </div>
-        ) : (
-          <div
+        : <div
             id="markdown"
             className="max-h-[62%] animate"
             style={{ "--chars": response.length }}
@@ -364,13 +369,14 @@ function Main() {
                       width="28px"
                       fill="#e3e3e3"
                     >
-                      {!copyDone2 ? (
-                        // copy icon -->
-                        <path d="M360-240q-33 0-56.5-23.5T280-320v-480q0-33 23.5-56.5T360-880h360q33 0 56.5 23.5T800-800v480q0 33-23.5 56.5T720-240H360Zm0-80h360v-480H360v480ZM200-80q-33 0-56.5-23.5T120-160v-560h80v560h440v80H200Zm160-240v-480 480Z" />
-                      ) : (
-                        // tick icon -->
-                        <path d="M382-240 154-468l57-57 171 171 367-367 57 57-424 424Z" />
-                      )}
+                      {
+                        !copyDone2 ?
+                          // copy icon -->
+                          <path d="M360-240q-33 0-56.5-23.5T280-320v-480q0-33 23.5-56.5T360-880h360q33 0 56.5 23.5T800-800v480q0 33-23.5 56.5T720-240H360Zm0-80h360v-480H360v480ZM200-80q-33 0-56.5-23.5T120-160v-560h80v560h440v80H200Zm160-240v-480 480Z" />
+                          // tick icon -->
+                        : <path d="M382-240 154-468l57-57 171 171 367-367 57 57-424 424Z" />
+
+                      }
                     </svg>
                   </Tooltip.Trigger>
 
@@ -397,9 +403,9 @@ function Main() {
                         likeFactor === 0 ? "hidden" : ""
                       }
                   ${
-                    likeFactor === 1
-                      ? "bg-gray-300 fill-black hover:bg-gray-300"
-                      : ""
+                    likeFactor === 1 ?
+                      "bg-gray-300 fill-black hover:bg-gray-300"
+                    : ""
                   }
                   `}
                       xmlns="http://www.w3.org/2000/svg"
@@ -435,9 +441,9 @@ function Main() {
                         likeFactor === 1 ? "hidden" : ""
                       } 
                   ${
-                    likeFactor === 0
-                      ? "bg-gray-300 fill-black hover:bg-gray-300"
-                      : ""
+                    likeFactor === 0 ?
+                      "bg-gray-300 fill-black hover:bg-gray-300"
+                    : ""
                   }
                   `}
                       xmlns="http://www.w3.org/2000/svg"
@@ -494,7 +500,7 @@ function Main() {
               </div>
             )}
           </div>
-        )}
+        }
       </div>
 
       {/*  bottom box --> */}
@@ -527,13 +533,14 @@ function Main() {
                 width="24px"
                 fill="#a6a6a6"
               >
-                {searchDone ? (
-                  // tick icon -->
-                  <path d="M382-240 154-468l57-57 171 171 367-367 57 57-424 424Z" />
-                ) : (
-                  // search icon -->
-                  <path d="M784-120 532-372q-30 24-69 38t-83 14q-109 0-184.5-75.5T120-580q0-109 75.5-184.5T380-840q109 0 184.5 75.5T640-580q0 44-14 83t-38 69l252 252-56 56ZM380-400q75 0 127.5-52.5T560-580q0-75-52.5-127.5T380-760q-75 0-127.5 52.5T200-580q0 75 52.5 127.5T380-400Z" />
-                )}
+                {
+                  searchDone ?
+                    // tick icon -->
+                    <path d="M382-240 154-468l57-57 171 171 367-367 57 57-424 424Z" />
+                    // search icon -->
+                  : <path d="M784-120 532-372q-30 24-69 38t-83 14q-109 0-184.5-75.5T120-580q0-109 75.5-184.5T380-840q109 0 184.5 75.5T640-580q0 44-14 83t-38 69l252 252-56 56ZM380-400q75 0 127.5-52.5T560-580q0-75-52.5-127.5T380-760q-75 0-127.5 52.5T200-580q0 75 52.5 127.5T380-400Z" />
+
+                }
               </svg>
             </Tooltip.Trigger>
 
