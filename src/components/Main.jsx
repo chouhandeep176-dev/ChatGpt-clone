@@ -82,6 +82,8 @@ function Main() {
 
     console.log("URL:", url);
 
+    let finalResponse = ""; // declare here
+
     try {
       const res = await fetch(url, {
         method: "POST",
@@ -101,17 +103,16 @@ function Main() {
       });
 
       const data = await res.json();
-      const finalResponse =
+      finalResponse =
         data?.choices?.[0]?.message?.content || "No response try again";
 
       setResponse(finalResponse);
     } catch (err) {
       console.error(err);
       setResponse("⚠️ API error, try again later");
+    } finally {
+      setLoading(false);
     }
-
-    // loading has ended -->
-    setLoading(false);
 
     // fetch date -->
     const newDate = new Date();
