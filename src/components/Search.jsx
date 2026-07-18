@@ -6,6 +6,7 @@ import SearchChat from "./SearchChat";
 function Search() {
   // all chats -->
   const chats = useSelector((state) => state.chatEditor.chats);
+  console.log(" all chats : ", chats);
 
   // search term state -->
   const [searchTerm, setSearchTerm] = useState("");

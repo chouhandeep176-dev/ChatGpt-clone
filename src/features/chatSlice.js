@@ -4,6 +4,7 @@ import { current } from "@reduxjs/toolkit";
 
 
 const initialState = {
+  //TODO: get chats from DB using "model.find" => [{doc1}, {doc2}, {doc3}]
   chats: localStorage.getItem("chats")
     ? JSON.parse(localStorage.getItem("chats"))
     : [],
@@ -21,7 +22,7 @@ export const chatSlice = createSlice({
       // update chats -->
       state.chats.push(chat);
 
-      // update local storage also -->
+      // update local storage also --> //TODO: store in DB using Model
       localStorage.setItem("chats", JSON.stringify(state.chats));
 
       // ✅ Log chats state using Immer
@@ -34,7 +35,7 @@ export const chatSlice = createSlice({
       // delete target chat using the given index in payload -->
       state.chats.splice(targetChatIdx, 1);
 
-      // update local stoage entries -->
+      // update local stoage entries --> //TODO: Delete chat from DB using Model
       localStorage.setItem("chats", JSON.stringify(state.chats));
     },
 
