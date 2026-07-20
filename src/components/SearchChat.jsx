@@ -1,6 +1,8 @@
 import React from "react";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router";
+import ReactMarkdown from "react-markdown";
+
 
 const SearchChat = ({ idx, chat }) => {
   const navigate = useNavigate();
@@ -36,9 +38,9 @@ const SearchChat = ({ idx, chat }) => {
           {chat.query}
         </h2>
 
-        <p className="max-h-[1.2rem] overflow-hidden  min-w-0  text-[.85rem] text-[#a6a6a6]">
-          {chat.response}
-        </p>
+        <div className="max-h-[1.2rem] overflow-hidden text-[.85rem] text-[#a6a6a6]">
+          <ReactMarkdown>{chat.response}</ReactMarkdown>
+        </div>
       </div>
 
       {/* date of the chat -->  */}

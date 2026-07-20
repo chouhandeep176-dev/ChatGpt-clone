@@ -2,7 +2,9 @@ import { useEffect, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import * as Tooltip from "@radix-ui/react-tooltip";
 
-import { addChat, deleteChat, openChat, copyChat } from "../features/chatSlice";
+import { storeChatDB } from "../asyncThunks/chatThunks.js";
+
+import {copyChat } from "../features/chatSlice";
 import { useSelector, useDispatch } from "react-redux";
 import { useLocation } from "react-router-dom";
 
@@ -123,15 +125,15 @@ function Main() {
     });
 
     // store chat data in the local storage -->
+    // TODO: remove _id and let Mongo DB handle it (in express)
     const newChat = {
       query: calledFromUpperInput ? lastQuery : query,
       response: finalResponse,
       date: date,
-      _id: crypto.randomUUID(),
     };
 
     // dispatch addChat action as sson as we get a chat -->
-    dispatch(addChat(newChat));
+     dispatch(storeChatDB(newChat));
 
     return finalResponse;
   };
@@ -143,6 +145,7 @@ function Main() {
   useEffect(() => {
     setLikeFactor(-1);
   }, [response]);
+
 
   // structure -->
   return (

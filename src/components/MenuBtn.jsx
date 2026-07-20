@@ -1,11 +1,17 @@
 import React, { useContext } from "react";
-import { addChat, deleteChat, openChat, copyChat } from "../features/chatSlice";
+import {copyChat } from "../features/chatSlice";
 import { useSelector, useDispatch } from "react-redux";
 import { ChatContext } from "./SidebarChat";
 import { useNavigate } from "react-router";
 
+import { deleteChatDB } from "../asyncThunks/chatThunks.js";
+
 const MenuBtn = ({ forCopy, forOpen, forDelete }) => {
   const chatContextdata = useContext(ChatContext);
+
+   //! all chats -->
+  const chats = useSelector((state) => state.chatEditor.chats);
+  console.log("all chats in search page : ", chats)
 
   // fetching context data -->
   const setSelectedChatIdx = chatContextdata.setSelectedChatIdx;
@@ -27,7 +33,9 @@ const MenuBtn = ({ forCopy, forOpen, forDelete }) => {
 
         } else if (forDelete) {
 
-          dispatch(deleteChat(chatContextdata.chatIdx));
+          console.log()
+          //TODO: delete using api call -->
+          // dispatch(deleteChatDB(chatContextdata.chatIdx));
 
 
           // reset selected chat index so UI doesn't break

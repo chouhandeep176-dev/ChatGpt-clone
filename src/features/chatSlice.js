@@ -2,12 +2,17 @@ import { createSlice } from "@reduxjs/toolkit";
 import { useNavigate } from "react-router";
 import { current } from "@reduxjs/toolkit";
 
+import {
+  fetchChats,
+  storeChatDB,
+  deleteChatDB,
+} from "../asyncThunks/chatThunks.js";
 
 const initialState = {
-  //TODO: get chats from DB using "model.find" => [{doc1}, {doc2}, {doc3}]
-  chats: localStorage.getItem("chats")
-    ? JSON.parse(localStorage.getItem("chats"))
-    : [],
+  //TODO: get chats from DB using "model.find" => [{doc1}, {doc2}, {doc3}] (in express)
+  chats: [], //  start empty, data comes from backend
+  loading: false,
+  error: null,
 };
 
 export const chatSlice = createSlice({
@@ -16,29 +21,6 @@ export const chatSlice = createSlice({
   initialState,
 
   reducers: {
-    addChat: (state, action) => {
-      const chat = action.payload;
-
-      // update chats -->
-      state.chats.push(chat);
-
-      // update local storage also --> //TODO: store in DB using Model
-      localStorage.setItem("chats", JSON.stringify(state.chats));
-
-      // ✅ Log chats state using Immer
-      console.log("All chats from slice :", current(state.chats));
-    },
-
-    deleteChat: (state, action) => {
-      const targetChatIdx = action.payload;
-
-      // delete target chat using the given index in payload -->
-      state.chats.splice(targetChatIdx, 1);
-
-      // update local stoage entries --> //TODO: Delete chat from DB using Model
-      localStorage.setItem("chats", JSON.stringify(state.chats));
-    },
-
     copyChat: (state, action) => {
       // get target chat from the index in payload of action -->
       const targetChatIdx = action.payload;
@@ -50,28 +32,38 @@ export const chatSlice = createSlice({
       // Now copy to clipboard -->
       navigator.clipboard.writeText(text);
 
-      alert("copied")
+      alert("copied");
     },
+  },
 
-    // openChat: (state, action) => {
-    //   let navigate = useNavigate();
+  extraReducers: (builder) => {
+    builder
 
-    //   const chat = action.payload;
+      // 🔹 fetch chats
+      .addCase(fetchChats.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(fetchChats.fulfilled, (state, action) => {
+        state.loading = false;
+        state.chats = action.payload;
+      })
+      .addCase(fetchChats.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
 
-    //   // go to that chat -->
-    //   navigate(`/search/${chat.id}`, {
-    //     state: {
-    //       cameToOpen: true,
-    //       query: chat.query,
-    //       response: chat.response,
-    //     },
-    //   });
-    // },
+      // 🔹 add chat
+      .addCase(storeChatDB.fulfilled, (state, action) => {
+        state.chats.unshift(action.payload); // recent first
+      })
 
-
+      // 🔹 delete chat
+      .addCase(deleteChatDB.fulfilled, (state, action) => {
+        state.chats = state.chats.filter((chat) => chat._id !== action.payload);
+      });
   },
 });
 
 // Action creators are generated for each case reducer function
-export const { addChat, deleteChat, openChat, copyChat } = chatSlice.actions;
+export const {copyChat } = chatSlice.actions;
 export default chatSlice.reducer;
