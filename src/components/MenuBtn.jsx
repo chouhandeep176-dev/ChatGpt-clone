@@ -33,10 +33,11 @@ const MenuBtn = ({ forCopy, forOpen, forDelete }) => {
 
         } else if (forDelete) {
 
-          console.log()
+          //? get chat id to delete that chat -->
+          console.log( "chat _id : ", chats[chatContextdata.chatIdx]._id);
+          const chatId = chats[chatContextdata.chatIdx]._id;
           //TODO: delete using api call -->
-          // dispatch(deleteChatDB(chatContextdata.chatIdx));
-
+          dispatch(deleteChatDB(chatId));
 
           // reset selected chat index so UI doesn't break
           setSelectedChatIdx(null);

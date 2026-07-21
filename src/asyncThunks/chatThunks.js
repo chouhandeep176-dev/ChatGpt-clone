@@ -9,6 +9,7 @@ export const fetchChats = createAsyncThunk(
         `${import.meta.env.VITE_BACKEND_BASS_URL}/user/allChats`,
       );
       const resData = await res.json();
+      console.log("response while feching chats : ", resData);
 
       if (!res.ok || !resData.success) {
         return thunkAPI.rejectWithValue("Failed to fetch chats");
