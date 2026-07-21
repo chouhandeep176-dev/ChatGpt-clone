@@ -124,7 +124,7 @@ function Main() {
       year: "numeric",
     });
 
-    // store chat data in the local storage -->
+    // store chat data -->
     // TODO: remove _id and let Mongo DB handle it (in express)
     const newChat = {
       query: calledFromUpperInput ? lastQuery : query,
