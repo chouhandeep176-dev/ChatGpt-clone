@@ -30,10 +30,13 @@ export const storeChatDB = createAsyncThunk(
   "chat/storeChatDB",
   async (chat, thunkAPI) => {
     try {
+      console.log(
+        "Base URL while storing chat in DB :",
+        import.meta.env.VITE_BACKEND_BASS_URL,
+      );
+
       const res = await fetch(
-        console.log(
-          "Base URL while storing chat in DB : import.meta.env.VITE_BACKEND_BASS_URL}",
-        )`${import.meta.env.VITE_BACKEND_BASS_URL}/user/chat`,
+        `${import.meta.env.VITE_BACKEND_BASS_URL}/user/chat`,
         {
           method: "post",
           headers: {
