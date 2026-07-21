@@ -4,8 +4,10 @@ export const fetchChats = createAsyncThunk(
   "chat/fetchChats",
   async (_, thunkAPI) => {
     try {
-      const url = 1;
-      console.log("url while fetching chats : ", url);
+      console.log(
+        "url while fetching chats : ",
+        import.meta.env.VITE_BACKEND_BASS_URL,
+      );
       const res = await fetch(
         `${import.meta.env.VITE_BACKEND_BASS_URL}/user/allChats`,
       );
